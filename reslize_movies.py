@@ -13,7 +13,7 @@ def reslize_movie(movie, dx=1):
 
 # get a list of all filenames ending in .tif using glob
 filenames = glob('*.tif')
-for fn in filenames:
+for fn in filenames: 
     movie = imread(fn)
     slices = reslize_movie(movie)
     # create a folder with the same name as the file

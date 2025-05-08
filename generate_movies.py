@@ -8,11 +8,12 @@ np.random.seed(1)
 gen_image_size = (256, 256)
 len_diagonal = int(np.sqrt(gen_image_size[0]**2 + gen_image_size[1]**2))
 
-num_movies = 10
+draw_full_sinusoids = False
+num_movies = 100
 
 for movie in range(num_movies):
 
-    num_sinosoids = 7
+    num_sinosoids = 100
     num_frames = 100
 
     range_frequencies = (0.05, 0.5)
@@ -46,26 +47,46 @@ for movie in range(num_movies):
             offset_y = offsets_y[i]
             direction = directions[i]
 
-            for dist in np.linspace(-len_diagonal, len_diagonal, len_diagonal*10):
-                # Calculate the coordinates of the pixel
-                x = int(np.round(offset_x + dist * np.cos(direction)))
-                y = int(np.round(offset_y + dist * np.sin(direction)))
+            if (draw_full_sinusoids):
 
-                orthogonal_distance = int(np.round(amplitude * np.sin(frequency * dist + phase_shift)))
+                # Draw the sinusoid
+                for dist in np.linspace(-len_diagonal, len_diagonal, len_diagonal*10):
+                    # Calculate the coordinates of the pixel
+                    x = int(np.round(offset_x + dist * np.cos(direction)))
+                    y = int(np.round(offset_y + dist * np.sin(direction)))
+
+                    orthogonal_distance = int(np.round(amplitude * np.sin(frequency * dist + phase_shift)))
+                    orthogonal_direction = direction + np.pi / 2
+                    # draw a point at distance orthogonal_distance from (x,y) in the direction of orthogonal_direction
+                    x_sin = int(np.round(x + orthogonal_distance * np.cos(orthogonal_direction)))
+                    y_sin = int(np.round(y + orthogonal_distance * np.sin(orthogonal_direction)))
+                    if 0 <= x_sin < gen_image_size[0] and 0 <= y_sin < gen_image_size[1]:
+                        # frame[x_sin, y_sin] = 1
+                        draw_circle(frame, (x_sin, y_sin), 1.5)
+
+            else: 
+                # Draw a circle waving sinusoidally at the offset location
+                # Calculate the coordinates of the pixel
+                x = int(np.round(offset_x + np.cos(direction)))
+                y = int(np.round(offset_y + np.sin(direction)))
+
+                orthogonal_distance = int(np.round(amplitude * np.sin(frequency * phase_shift)))
                 orthogonal_direction = direction + np.pi / 2
                 # draw a point at distance orthogonal_distance from (x,y) in the direction of orthogonal_direction
                 x_sin = int(np.round(x + orthogonal_distance * np.cos(orthogonal_direction)))
                 y_sin = int(np.round(y + orthogonal_distance * np.sin(orthogonal_direction)))
                 if 0 <= x_sin < gen_image_size[0] and 0 <= y_sin < gen_image_size[1]:
                     # frame[x_sin, y_sin] = 1
-                    draw_circle(frame, (x_sin, y_sin), 1.5)
+                    draw_circle(frame, (x_sin, y_sin), 2.5)
+
         if t%10 == 0:
             print(':', end='', flush=True)
         else:
             print('-', end='', flush=True)
-        frames[t] = frame    
+        frames[t] = frame  
+    print(' - ',movie)  
 
-    imwrite(f'movie_{movie:03d}.tif', frames, imagej=True)
+    imwrite(f'movie_{movie:03d}.tif', frames[:,np.newaxis,...], imagej=True)
 
     # fig, ax = plt.subplots()
     # m = ax.imshow(frames[0], cmap='gray')
