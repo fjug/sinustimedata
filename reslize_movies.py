@@ -12,15 +12,12 @@ def reslize_movie(movie, dx=1):
     return slices
 
 # get a list of all filenames ending in .tif using glob
-filenames = glob('*.tif')
-for fn in filenames: 
+subfolder = 'data_batch_01'
+filenames = glob(subfolder+'/*.tif')
+filenames.sort()
+for j,fn in enumerate(filenames): 
     movie = imread(fn)
     slices = reslize_movie(movie)
-    # create a folder with the same name as the file
-    folder = fn.split('.')[0]
-    # create the folder if it doesn't exist
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    # save the slices in the folder
-    for i in range(slices.shape[0]):
-        imwrite(os.path.join(folder, f'slice_{i}.tif'), slices[i], photometric='minisblack')
+    # save the resliced data
+    imwrite(subfolder+f'/resliced_{j:03d}.tif', slices, photometric='minisblack')
+    print(f'Processed {fn} - saved as {subfolder+f"/resliced_{j:03d}.tif"}')
